@@ -51,6 +51,7 @@ func main() {
 
 func tuxWrite(pipe io.WriteCloser) {
     pipe.Write([]byte("verbose on\n"))
+    pipe.Write([]byte("page off\n"))
 
     for i := 0; i < 3; i++ {
         pipe.Write([]byte("psr\n"))
@@ -60,5 +61,6 @@ func tuxWrite(pipe io.WriteCloser) {
         //fmt.Println(s)
     }
 
+    pipe.Write([]byte("quit\n"))
     pipe.Close()
 }
