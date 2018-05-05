@@ -5,6 +5,7 @@ import "io"
 import "bufio"
 import "os"
 import "os/exec"
+import "strings"
 import "time"
 
 func main() {
@@ -20,30 +21,42 @@ func main() {
     oBuf := bufio.NewReader(tuxOut)
     tuxCmd.Start()
     
+    go tuxWrite(tuxIn)
     doTuxLoop := true
 
     for doTuxLoop {
-        doCmdLoop := true
+        appendMessage := true
 
-        go tuxWrite(tuxIn)
+        message,_ := oBuf.ReadString('\n')
+        message = strings.TrimLeft(message, " >")
 
-        for doCmdLoop {
+        if (strings.Index(message, "Group ID:") == 0) {
+            fmt.Println("psr message")
+        } else if (strings.Index(message, "Prog Name:") == 0) {
+            fmt.Println("pq message")
+        } else if (strings.Index(message, "LMID:") == 0) {
+            fmt.Println("pclt message")
+        }
+
+        for appendMessage {
             line, err := oBuf.ReadString('\n')
-
+            line = strings.TrimLeft(line," >")
             if(err != nil) {
                 fmt.Println(err)
                 break
             }
 
             if(line == "\n") {
-                fmt.Println("----")
+                appendMessage = false
             } else {
-                fmt.Print(line)
+                //fmt.Print(line)
+               message += line 
             }
         }
-
-        fmt.Println("Done with loop")
-        doTuxLoop = false
+        fmt.Print(message)
+        fmt.Println("----")
+        //fmt.Println("Done with loop")
+        //doTuxLoop = false
     }
 
     tuxCmd.Wait()
